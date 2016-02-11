@@ -182,12 +182,12 @@ static void set_meta(AVDictionary **metadata, int chan, const char *key,
     uint8_t value[128];
     uint8_t key2[128];
 
-    snprintf(value, sizeof(value), fmt, val);
+    snprintf((char *) value, sizeof(value), fmt, val);
     if (chan)
-        snprintf(key2, sizeof(key2), "lavfi.astats.%d.%s", chan, key);
+        snprintf((char *) key2, sizeof(key2), "lavfi.astats.%d.%s", chan, key);
     else
-        snprintf(key2, sizeof(key2), "lavfi.astats.%s", key);
-    av_dict_set(metadata, key2, value, 0);
+        snprintf((char *) key2, sizeof(key2), "lavfi.astats.%s", key);
+    av_dict_set(metadata, (char *) key2, (char *) value, 0);
 }
 
 #define LINEAR_TO_DB(x) (log10(x) * 20)

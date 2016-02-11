@@ -664,7 +664,7 @@ static int v4l2_set_parameters(AVFormatContext *ctx)
                     ret = AVERROR(errno);
                     break;
                 }
-                if (!av_strcasecmp(standard.name, s->standard))
+                if (!av_strcasecmp((char *) standard.name, s->standard))
                     break;
             }
             if (ret < 0) {
@@ -1059,7 +1059,7 @@ static int v4l2_get_device_list(AVFormatContext *ctx, AVDeviceInfoList *device_l
             goto fail;
         }
         device->device_name = av_strdup(ctx->filename);
-        device->device_description = av_strdup(cap.card);
+        device->device_description = av_strdup((char *) cap.card);
         if (!device->device_name || !device->device_description) {
             ret = AVERROR(ENOMEM);
             goto fail;
