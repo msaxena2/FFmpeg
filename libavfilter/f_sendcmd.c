@@ -395,7 +395,7 @@ static av_cold int init(AVFilterContext *ctx)
         memcpy(buf, file_buf, file_bufsize);
         buf[file_bufsize] = 0;
         av_file_unmap(file_buf, file_bufsize);
-        s->commands_str = buf;
+        s->commands_str = (char *) buf;
     }
 
     if ((ret = parse_intervals(&s->intervals, &s->nb_intervals,

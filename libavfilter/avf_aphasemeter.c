@@ -113,9 +113,9 @@ static int config_output(AVFilterLink *outlink)
     outlink->sample_aspect_ratio = (AVRational){1,1};
     outlink->frame_rate = s->frame_rate;
 
-    if (!strcmp(s->mpc_str, "none"))
+    if (!strcmp((char *) s->mpc_str, "none"))
         s->draw_median_phase = 0;
-    else if (av_parse_color(s->mpc, s->mpc_str, -1, ctx) >= 0)
+    else if (av_parse_color(s->mpc, (char *) s->mpc_str, -1, ctx) >= 0)
         s->draw_median_phase = 1;
     else
         return AVERROR(EINVAL);
@@ -192,8 +192,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (metadata) {
         uint8_t value[128];
 
-        snprintf(value, sizeof(value), "%f", fphase);
-        av_dict_set(metadata, "lavfi.aphasemeter.phase", value, 0);
+        snprintf((char *) value, sizeof(value), "%f", fphase);
+        av_dict_set(metadata, "lavfi.aphasemeter.phase", (char *) value, 0);
     }
 
     av_frame_free(&in);
