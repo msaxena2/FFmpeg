@@ -73,11 +73,11 @@ static int concat_probe(AVProbeData *probe)
 
 static char *get_keyword(uint8_t **cursor)
 {
-    char *ret = *cursor += strspn(*cursor, SPACE_CHARS);
-    *cursor += strcspn(*cursor, SPACE_CHARS);
+    char *ret = (char *) *cursor += strspn((char *) *cursor, SPACE_CHARS);
+    *cursor += strcspn((char *) *cursor, SPACE_CHARS);
     if (**cursor) {
         *((*cursor)++) = 0;
-        *cursor += strspn(*cursor, SPACE_CHARS);
+        *cursor += strspn((char *) *cursor, SPACE_CHARS);
     }
     return ret;
 }
@@ -362,15 +362,15 @@ static int concat_read_header(AVFormatContext *avf)
     int64_t time = 0;
 
     while (1) {
-        if ((ret = ff_get_line(avf->pb, buf, sizeof(buf))) <= 0)
+        if ((ret = ff_get_line(avf->pb, (char *) buf, sizeof(buf))) <= 0)
             break;
         line++;
         cursor = buf;
-        keyword = get_keyword(&cursor);
+        keyword = (uint8_t *) get_keyword(&cursor);
         if (!*keyword || *keyword == '#')
             continue;
 
-        if (!strcmp(keyword, "file")) {
+        if (!strcmp((char *) keyword, "file")) {
             char *filename = av_get_token((const char **)&cursor, SPACE_CHARS);
             if (!filename) {
                 av_log(avf, AV_LOG_ERROR, "Line %d: filename required\n", line);
@@ -378,7 +378,7 @@ static int concat_read_header(AVFormatContext *avf)
             }
             if ((ret = add_file(avf, filename, &file, &nb_files_alloc)) < 0)
                 goto fail;
-        } else if (!strcmp(keyword, "duration") || !strcmp(keyword, "inpoint") || !strcmp(keyword, "outpoint")) {
+        } else if (!strcmp((char *) keyword, "duration") || !strcmp((char *) keyword, "inpoint") || !strcmp((char *) keyword, "outpoint")) {
             char *dur_str = get_keyword(&cursor);
             int64_t dur;
             if (!file) {
@@ -391,13 +391,13 @@ static int concat_read_header(AVFormatContext *avf)
                        line, keyword, dur_str);
                 goto fail;
             }
-            if (!strcmp(keyword, "duration"))
+            if (!strcmp((char *) keyword, "duration"))
                 file->duration = dur;
-            else if (!strcmp(keyword, "inpoint"))
+            else if (!strcmp((char *) keyword, "inpoint"))
                 file->inpoint = dur;
-            else if (!strcmp(keyword, "outpoint"))
+            else if (!strcmp((char *) keyword, "outpoint"))
                 file->outpoint = dur;
-        } else if (!strcmp(keyword, "file_packet_metadata")) {
+        } else if (!strcmp((char *) keyword, "file_packet_metadata")) {
             char *metadata;
             if (!file) {
                 av_log(avf, AV_LOG_ERROR, "Line %d: %s without file\n",
@@ -415,10 +415,10 @@ static int concat_read_header(AVFormatContext *avf)
                 FAIL(AVERROR_INVALIDDATA);
             }
             av_freep(&metadata);
-        } else if (!strcmp(keyword, "stream")) {
+        } else if (!strcmp((char *) keyword, "stream")) {
             if (!avformat_new_stream(avf, NULL))
                 FAIL(AVERROR(ENOMEM));
-        } else if (!strcmp(keyword, "exact_stream_id")) {
+        } else if (!strcmp((char *) keyword, "exact_stream_id")) {
             if (!avf->nb_streams) {
                 av_log(avf, AV_LOG_ERROR, "Line %d: exact_stream_id without stream\n",
                        line);
@@ -426,7 +426,7 @@ static int concat_read_header(AVFormatContext *avf)
             }
             avf->streams[avf->nb_streams - 1]->id =
                 strtol(get_keyword(&cursor), NULL, 0);
-        } else if (!strcmp(keyword, "ffconcat")) {
+        } else if (!strcmp((char *) keyword, "ffconcat")) {
             char *ver_kw  = get_keyword(&cursor);
             char *ver_val = get_keyword(&cursor);
             if (strcmp(ver_kw, "version") || strcmp(ver_val, "1.0")) {
@@ -602,7 +602,7 @@ static int concat_read_packet(AVFormatContext *avf, AVPacket *pkt)
     if (cat->cur_file->metadata) {
         uint8_t* metadata;
         int metadata_len;
-        char* packed_metadata = av_packet_pack_dictionary(cat->cur_file->metadata, &metadata_len);
+        char* packed_metadata = (char *) av_packet_pack_dictionary(cat->cur_file->metadata, &metadata_len);
         if (!packed_metadata)
             return AVERROR(ENOMEM);
         if (!(metadata = av_packet_new_side_data(pkt, AV_PKT_DATA_STRINGS_METADATA, metadata_len))) {
