@@ -139,7 +139,7 @@ static int flac_read_header(AVFormatContext *s)
                 ti = bytestream_get_byte(&offset);
                 if (ti <= 0) RETURN_ERROR(AVERROR_INVALIDDATA);
                 offset += ti * 12;
-                avpriv_new_chapter(s, track, st->time_base, start, AV_NOPTS_VALUE, isrc);
+                avpriv_new_chapter(s, track, st->time_base, start, AV_NOPTS_VALUE, (char *) isrc);
             }
             av_freep(&buffer);
         } else if (metadata_type == FLAC_METADATA_TYPE_PICTURE) {

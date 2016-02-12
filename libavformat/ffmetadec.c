@@ -61,16 +61,16 @@ static AVChapter *read_chapter(AVFormatContext *s)
 
     get_line(s->pb, line, sizeof(line));
 
-    if (sscanf(line, "TIMEBASE=%d/%d", &tb.num, &tb.den))
+    if (sscanf((char *) line, "TIMEBASE=%d/%d", &tb.num, &tb.den))
         get_line(s->pb, line, sizeof(line));
-    if (!sscanf(line, "START=%"SCNd64, &start)) {
+    if (!sscanf((char *) line, "START=%"SCNd64, &start)) {
         av_log(s, AV_LOG_ERROR, "Expected chapter start timestamp, found %s.\n", line);
         start = (s->nb_chapters && s->chapters[s->nb_chapters - 1]->end != AV_NOPTS_VALUE) ?
                  s->chapters[s->nb_chapters - 1]->end : 0;
     } else
         get_line(s->pb, line, sizeof(line));
 
-    if (!sscanf(line, "END=%"SCNd64, &end)) {
+    if (!sscanf((char *) line, "END=%"SCNd64, &end)) {
         av_log(s, AV_LOG_ERROR, "Expected chapter end timestamp, found %s.\n", line);
         end = AV_NOPTS_VALUE;
     }
@@ -116,12 +116,12 @@ static int read_tag(const uint8_t *line, AVDictionary **m)
 
     if (!(key = unescape(line, p - line)))
         return AVERROR(ENOMEM);
-    if (!(value = unescape(p + 1, strlen(p + 1)))) {
+    if (!(value = unescape(p + 1, strlen((char *) (p + 1))))) {
         av_free(key);
         return AVERROR(ENOMEM);
     }
 
-    av_dict_set(m, key, value, AV_DICT_DONT_STRDUP_KEY | AV_DICT_DONT_STRDUP_VAL);
+    av_dict_set(m, (char *) key, (char *) value, AV_DICT_DONT_STRDUP_KEY | AV_DICT_DONT_STRDUP_VAL);
     return 0;
 }
 

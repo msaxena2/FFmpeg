@@ -65,7 +65,7 @@ int ff_flac_parse_picture(AVFormatContext *s, uint8_t *buf, int buf_size)
     mimetype[len] = 0;
 
     while (mime->id != AV_CODEC_ID_NONE) {
-        if (!strncmp(mime->str, mimetype, sizeof(mimetype))) {
+        if (!strncmp((char *) mime->str, (char *) mimetype, sizeof(mimetype))) {
             id = mime->id;
             break;
         }
@@ -138,7 +138,7 @@ int ff_flac_parse_picture(AVFormatContext *s, uint8_t *buf, int buf_size)
     st->codec->height     = height;
     av_dict_set(&st->metadata, "comment", ff_id3v2_picture_types[type], 0);
     if (desc)
-        av_dict_set(&st->metadata, "title", desc, AV_DICT_DONT_STRDUP_VAL);
+        av_dict_set(&st->metadata, "title", (char *) desc, AV_DICT_DONT_STRDUP_VAL);
 
     av_freep(&pb);
 
