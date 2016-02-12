@@ -92,7 +92,7 @@ static void put_meta(AVFormatContext *s, const char *key, uint32_t id)
 
         avio_wl32(pb, id);
         avio_wb32(pb, FFALIGN(size, 2));
-        avio_write(pb, tag->value, size);
+        avio_write(pb, (unsigned char *) tag->value, size);
         if (size & 1)
             avio_w8(pb, 0);
     }
@@ -130,10 +130,10 @@ static int aiff_write_header(AVFormatContext *s)
         aifc = 1;
 
     /* FORM AIFF header */
-    ffio_wfourcc(pb, "FORM");
+    ffio_wfourcc(pb, (uint8_t *) "FORM");
     aiff->form = avio_tell(pb);
     avio_wb32(pb, 0);                    /* file length */
-    ffio_wfourcc(pb, aifc ? "AIFC" : "AIFF");
+    ffio_wfourcc(pb, aifc ? (uint8_t *) "AIFC" : (uint8_t *) "AIFF");
 
     if (aifc) { // compressed audio
         if (!enc->block_align) {
@@ -141,13 +141,13 @@ static int aiff_write_header(AVFormatContext *s)
             return -1;
         }
         /* Version chunk */
-        ffio_wfourcc(pb, "FVER");
+        ffio_wfourcc(pb, (uint8_t *) "FVER");
         avio_wb32(pb, 4);
         avio_wb32(pb, 0xA2805140);
     }
 
     if (enc->channels > 2 && enc->channel_layout) {
-        ffio_wfourcc(pb, "CHAN");
+        ffio_wfourcc(pb, (uint8_t *) "CHAN");
         avio_wb32(pb, 12);
         ff_mov_write_chan(pb, enc->channel_layout);
     }
@@ -158,7 +158,7 @@ static int aiff_write_header(AVFormatContext *s)
     put_meta(s, "comment",   MKTAG('A', 'N', 'N', 'O'));
 
     /* Common chunk */
-    ffio_wfourcc(pb, "COMM");
+    ffio_wfourcc(pb, (uint8_t *) "COMM");
     avio_wb32(pb, aifc ? 24 : 18); /* size */
     avio_wb16(pb, enc->channels);  /* Number of channels */
 
@@ -186,13 +186,13 @@ static int aiff_write_header(AVFormatContext *s)
     }
 
     if (enc->codec_tag == MKTAG('Q','D','M','2') && enc->extradata_size) {
-        ffio_wfourcc(pb, "wave");
+        ffio_wfourcc(pb, (uint8_t *) "wave");
         avio_wb32(pb, enc->extradata_size);
         avio_write(pb, enc->extradata, enc->extradata_size);
     }
 
     /* Sound data chunk */
-    ffio_wfourcc(pb, "SSND");
+    ffio_wfourcc(pb, (uint8_t *) "SSND");
     aiff->ssnd = avio_tell(pb);         /* Sound chunk size */
     avio_wb32(pb, 0);                    /* Sound samples data size */
     avio_wb32(pb, 0);                    /* Data offset */
