@@ -104,12 +104,12 @@ static int aa_read_header(AVFormatContext *s)
         if (nkey > sizeof(key)) {
             avio_skip(pb, nkey);
         } else {
-            avio_read(pb, key, nkey); // key string
+            avio_read(pb, (unsigned char *) key, nkey); // key string
         }
         if (nval > sizeof(val)) {
             avio_skip(pb, nval);
         } else {
-            avio_read(pb, val, nval); // value string
+            avio_read(pb,(unsigned char *) val, nval); // value string
         }
         if (!strcmp(key, "codec")) {
             av_log(s, AV_LOG_DEBUG, "Codec is <%s>\n", val);

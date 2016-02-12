@@ -897,7 +897,7 @@ static void test2_fill_picture(AVFilterContext *ctx, AVFrame *frame)
         snprintf(buf, sizeof(buf), "%02d:%02d:%02d.%03d\n%12"PRIi64,
                  time / 3600000, (time / 60000) % 60, (time / 1000) % 60,
                  time % 1000, s->pts);
-        draw_text(s, frame, &color, 4, 4, buf);
+        draw_text(s, frame, &color, 4, 4, (uint8_t *) buf);
     }
 }
 static av_cold int test2_init(AVFilterContext *ctx)

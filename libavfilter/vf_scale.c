@@ -166,7 +166,8 @@ static av_cold int init_dict(AVFilterContext *ctx, AVDictionary **opts)
         const AVClass *class = sws_get_class();
         const AVOption    *o = av_opt_find(&class, "sws_flags", NULL, 0,
                                            AV_OPT_SEARCH_FAKE_OBJ);
-        int ret = av_opt_eval_flags(&class, o, scale->flags_str, &scale->flags);
+	/* Passing ** class instead of *class */
+        int ret = av_opt_eval_flags(&class, o, scale->flags_str, (int *) &scale->flags);
         if (ret < 0)
             return ret;
     }

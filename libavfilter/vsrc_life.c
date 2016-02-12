@@ -203,7 +203,7 @@ static int init_pattern_from_file(AVFilterContext *ctx)
     }
 
     /* fill buf[0] */
-    p = life->file_buf;
+    p = (char *) life->file_buf;
     for (i0 = 0, i = (life->h - h)/2; i0 < h; i0++, i++) {
         for (j = (life->w - max_w)/2;; j++) {
             av_log(ctx, AV_LOG_DEBUG, "%d:%d %c\n", i, j, *p == '\n' ? 'N' : *p);
