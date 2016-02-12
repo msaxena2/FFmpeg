@@ -260,7 +260,7 @@ static int gxf_write_track_description(AVFormatContext *s, GXFStreamContext *sc,
     /* media file name */
     avio_w8(pb, TRACK_NAME);
     avio_w8(pb, strlen(ES_NAME_PATTERN) + 3);
-    avio_write(pb, ES_NAME_PATTERN, sizeof(ES_NAME_PATTERN) - 1);
+    avio_write(pb, (unsigned char *) ES_NAME_PATTERN, sizeof(ES_NAME_PATTERN) - 1);
     avio_wb16(pb, sc->media_info);
     avio_w8(pb, 0);
 
@@ -325,8 +325,8 @@ static int gxf_write_material_data_section(AVFormatContext *s)
 
     avio_w8(pb, MAT_NAME);
     avio_w8(pb, strlen(SERVER_PATH) + len + 1);
-    avio_write(pb, SERVER_PATH, sizeof(SERVER_PATH) - 1);
-    avio_write(pb, filename, len);
+    avio_write(pb, (unsigned char *) SERVER_PATH, sizeof(SERVER_PATH) - 1);
+    avio_write(pb, (unsigned char *) filename, len);
     avio_w8(pb, 0);
 
     /* first field */
@@ -609,7 +609,7 @@ static int gxf_write_umf_media_description(AVFormatContext *s)
         avio_wl32(pb, 0); /* attributes rw, ro */
         avio_wl32(pb, 0); /* mark in */
         avio_wl32(pb, gxf->nb_fields); /* mark out */
-        avio_write(pb, ES_NAME_PATTERN, strlen(ES_NAME_PATTERN));
+        avio_write(pb,(unsigned char *) ES_NAME_PATTERN, strlen(ES_NAME_PATTERN));
         avio_wb16(pb, sc->media_info);
         for (j = strlen(ES_NAME_PATTERN)+2; j < 88; j++)
             avio_w8(pb, 0);

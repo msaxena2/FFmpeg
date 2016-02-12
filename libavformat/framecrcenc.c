@@ -72,7 +72,7 @@ static int framecrc_write_packet(struct AVFormatContext *s, AVPacket *pkt)
         }
     }
     av_strlcatf(buf, sizeof(buf), "\n");
-    avio_write(s->pb, buf, strlen(buf));
+    avio_write(s->pb, (unsigned char *) buf, strlen(buf));
     return 0;
 }
 

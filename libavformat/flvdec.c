@@ -298,7 +298,7 @@ static int amf_get_string(AVIOContext *ioc, char *buffer, int buffsize)
         return -1;
     }
 
-    avio_read(ioc, buffer, length);
+    avio_read(ioc, (unsigned char *) buffer, length);
 
     buffer[length] = '\0';
 

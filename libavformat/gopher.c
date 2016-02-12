@@ -59,7 +59,7 @@ static int gopher_connect(URLContext *h, const char *path)
     /* send gopher sector */
     snprintf(buffer, sizeof(buffer), "%s\r\n", path);
 
-    if (gopher_write(h, buffer, strlen(buffer)) < 0)
+    if (gopher_write(h, (unsigned char *) buffer, strlen(buffer)) < 0)
         return AVERROR(EIO);
 
     return 0;

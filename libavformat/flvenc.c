@@ -174,7 +174,7 @@ static void put_amf_string(AVIOContext *pb, const char *str)
 {
     size_t len = strlen(str);
     avio_wb16(pb, len);
-    avio_write(pb, str, len);
+    avio_write(pb, (unsigned char *) str, len);
 }
 
 static void put_avc_eos_tag(AVIOContext *pb, unsigned ts)
@@ -425,7 +425,7 @@ static int flv_write_header(AVFormatContext *s)
 
     flv->delay = AV_NOPTS_VALUE;
 
-    avio_write(pb, "FLV", 3);
+    avio_write(pb, (unsigned char *) "FLV", 3);
     avio_w8(pb, 1);
     avio_w8(pb, FLV_HEADER_FLAG_HASAUDIO * !!flv->audio_enc +
                 FLV_HEADER_FLAG_HASVIDEO * !!flv->video_enc);
@@ -643,7 +643,7 @@ static int flv_write_packet(AVFormatContext *s, AVPacket *pkt)
             put_amf_string(pb, "Text");
             put_amf_string(pb, "text");
             avio_w8(pb, AMF_DATA_TYPE_STRING);
-            put_amf_string(pb, pkt->data);
+            put_amf_string(pb, (char *) pkt->data);
             put_amf_string(pb, "");
             avio_w8(pb, AMF_END_OF_OBJECT);
         } else {

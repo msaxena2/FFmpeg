@@ -116,8 +116,8 @@ static int flac_write_header(struct AVFormatContext *s)
                    "already present, this muxer will not overwrite it.\n");
         } else {
             uint8_t buf[32];
-            snprintf(buf, sizeof(buf), "0x%"PRIx64, codec->channel_layout);
-            av_dict_set(&s->metadata, "WAVEFORMATEXTENSIBLE_CHANNEL_MASK", buf, 0);
+            snprintf((char *) buf, sizeof(buf), "0x%"PRIx64, codec->channel_layout);
+            av_dict_set(&s->metadata, "WAVEFORMATEXTENSIBLE_CHANNEL_MASK", (char *)  buf, 0);
         }
     }
 

@@ -206,7 +206,7 @@ static int ftp_send_command(FTPContext *s, const char *command,
     if (response)
         *response = NULL;
 
-    if ((err = ffurl_write(s->conn_control, command, strlen(command))) < 0)
+    if ((err = ffurl_write(s->conn_control, (unsigned char *) command, strlen(command))) < 0)
         return err;
     if (!err)
         return -1;
@@ -1000,7 +1000,7 @@ static int ftp_read_dir(URLContext *h, AVIODirEntry **next)
             s->dir_buffer_offset = 0;
             if (s->dir_buffer_size)
                 memmove(s->dir_buffer, start, s->dir_buffer_size);
-            ret = ffurl_read(s->conn_data, s->dir_buffer + s->dir_buffer_size, DIR_BUFFER_SIZE - (s->dir_buffer_size + 1));
+            ret = ffurl_read(s->conn_data, (unsigned char *) s->dir_buffer + s->dir_buffer_size, DIR_BUFFER_SIZE - (s->dir_buffer_size + 1));
             if (ret < 0)
                 return ret;
             if (!ret) {

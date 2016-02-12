@@ -693,7 +693,7 @@ static int parse_playlist(HLSContext *c, const char *url,
     }
 
     if (av_opt_get(in, "location", AV_OPT_SEARCH_CHILDREN, &new_url) >= 0)
-        url = new_url;
+        url = (char *) new_url;
 
     read_chomp_line(in, line, sizeof(line));
     if (strcmp(line, "#EXTM3U")) {
@@ -896,7 +896,7 @@ static void parse_id3(AVFormatContext *s, AVIOContext *pb,
     for (meta = *extra_meta; meta; meta = meta->next) {
         if (!strcmp(meta->tag, "PRIV")) {
             ID3v2ExtraMetaPRIV *priv = meta->data;
-            if (priv->datasize == 8 && !strcmp(priv->owner, id3_priv_owner_ts)) {
+            if (priv->datasize == 8 && !strcmp((char *) priv->owner, id3_priv_owner_ts)) {
                 /* 33-bit MPEG timestamp */
                 int64_t ts = AV_RB64(priv->data);
                 av_log(s, AV_LOG_DEBUG, "HLS ID3 audio timestamp %"PRId64"\n", ts);

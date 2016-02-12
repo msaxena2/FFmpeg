@@ -63,8 +63,8 @@ static int gif_image_write_header(AVIOContext *pb, const AVCodecContext *avctx,
             aspect = 0;
     }
 
-    avio_write(pb, "GIF", 3);
-    avio_write(pb, "89a", 3);
+    avio_write(pb, (unsigned char *) "GIF", 3);
+    avio_write(pb, (unsigned char *) "89a", 3);
     avio_wl16(pb, avctx->width);
     avio_wl16(pb, avctx->height);
 
@@ -90,7 +90,7 @@ static int gif_image_write_header(AVIOContext *pb, const AVCodecContext *avctx,
         avio_w8(pb, 0x21); /* GIF Extension code */
         avio_w8(pb, 0xff); /* Application Extension Label */
         avio_w8(pb, 0x0b); /* Length of Application Block */
-        avio_write(pb, "NETSCAPE2.0", sizeof("NETSCAPE2.0") - 1);
+        avio_write(pb, (unsigned char *) "NETSCAPE2.0", sizeof("NETSCAPE2.0") - 1);
         avio_w8(pb, 0x03); /* Length of Data Sub-Block */
         avio_w8(pb, 0x01);
         avio_wl16(pb, (uint16_t)loop_count);
