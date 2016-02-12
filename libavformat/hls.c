@@ -1500,7 +1500,7 @@ static int save_avio_options(AVFormatContext *s)
 
     while (*opt) {
         if (av_opt_get(s->pb, *opt, AV_OPT_SEARCH_CHILDREN | AV_OPT_ALLOW_NULL, &buf) >= 0) {
-            ret = av_dict_set(&c->avio_opts, *opt, buf,
+            ret = av_dict_set(&c->avio_opts, *opt, (char *)  buf,
                               AV_DICT_DONT_STRDUP_VAL);
             if (ret < 0)
                 return ret;
@@ -1990,12 +1990,12 @@ static int hls_probe(AVProbeData *p)
 {
     /* Require #EXTM3U at the start, and either one of the ones below
      * somewhere for a proper match. */
-    if (strncmp(p->buf, "#EXTM3U", 7))
+    if (strncmp((char *) p->buf, "#EXTM3U", 7))
         return 0;
 
-    if (strstr(p->buf, "#EXT-X-STREAM-INF:")     ||
-        strstr(p->buf, "#EXT-X-TARGETDURATION:") ||
-        strstr(p->buf, "#EXT-X-MEDIA-SEQUENCE:"))
+    if (strstr((char *) p->buf, "#EXT-X-STREAM-INF:")     ||
+        strstr((char *) p->buf, "#EXT-X-TARGETDURATION:") ||
+        strstr((char *) p->buf, "#EXT-X-MEDIA-SEQUENCE:"))
         return AVPROBE_SCORE_MAX;
     return 0;
 }

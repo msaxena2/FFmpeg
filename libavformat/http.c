@@ -391,7 +391,7 @@ static int http_write_reply(URLContext* h, int status_code)
                  content_type);
     }
     av_log(h, AV_LOG_TRACE, "HTTP reply header: \n%s----\n", message);
-    if ((ret = ffurl_write(s->hd, message, message_len)) < 0)
+    if ((ret = ffurl_write(s->hd, (unsigned char *) message, message_len)) < 0)
         return ret;
     return 0;
 }
@@ -1091,7 +1091,7 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
     if (s->headers)
         av_strlcpy(headers + len, s->headers, sizeof(headers) - len);
 
-    snprintf(s->buffer, sizeof(s->buffer),
+    snprintf((char *) s->buffer, sizeof(s->buffer),
              "%s %s HTTP/1.1\r\n"
              "%s"
              "%s"
@@ -1107,7 +1107,7 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
 
     av_log(h, AV_LOG_DEBUG, "request: %s\n", s->buffer);
 
-    if ((err = ffurl_write(s->hd, s->buffer, strlen(s->buffer))) < 0)
+    if ((err = ffurl_write(s->hd, s->buffer, strlen((char *) s->buffer))) < 0)
         goto done;
 
     if (s->post_data)
@@ -1340,7 +1340,7 @@ static int store_icy(URLContext *h, int size)
             char data[255 * 16 + 1];
             int ret;
             len = ch * 16;
-            ret = http_read_stream_all(h, data, len);
+            ret = http_read_stream_all(h, (uint8_t *) data, len);
             if (ret < 0)
                 return ret;
             data[len + 1] = 0;
@@ -1390,9 +1390,9 @@ static int http_write(URLContext *h, const uint8_t *buf, int size)
         /* upload data using chunked encoding */
         snprintf(temp, sizeof(temp), "%x\r\n", size);
 
-        if ((ret = ffurl_write(s->hd, temp, strlen(temp))) < 0 ||
-            (ret = ffurl_write(s->hd, buf, size)) < 0          ||
-            (ret = ffurl_write(s->hd, crlf, sizeof(crlf) - 1)) < 0)
+        if ((ret = ffurl_write(s->hd, (unsigned char *) temp, strlen(temp))) < 0 ||
+            (ret = ffurl_write(s->hd, (unsigned char *) buf, size)) < 0          ||
+            (ret = ffurl_write(s->hd, (unsigned char *) crlf, sizeof(crlf) - 1)) < 0)
             return ret;
     }
     return size;
@@ -1407,7 +1407,7 @@ static int http_shutdown(URLContext *h, int flags)
     /* signal end of chunked encoding if used */
     if (((flags & AVIO_FLAG_WRITE) && s->chunked_post) ||
         ((flags & AVIO_FLAG_READ) && s->chunked_post && s->listen)) {
-        ret = ffurl_write(s->hd, footer, sizeof(footer) - 1);
+        ret = ffurl_write(s->hd, (unsigned char *) footer, sizeof(footer) - 1);
         ret = ret > 0 ? 0 : ret;
         s->end_chunked_post = 1;
     }
@@ -1588,7 +1588,7 @@ redo:
 
     authstr = ff_http_auth_create_response(&s->proxy_auth_state, auth,
                                            path, "CONNECT");
-    snprintf(s->buffer, sizeof(s->buffer),
+    snprintf((char *) s->buffer, sizeof(s->buffer),
              "CONNECT %s HTTP/1.1\r\n"
              "Host: %s\r\n"
              "Connection: close\r\n"
@@ -1599,7 +1599,7 @@ redo:
              authstr ? "Proxy-" : "", authstr ? authstr : "");
     av_freep(&authstr);
 
-    if ((ret = ffurl_write(s->hd, s->buffer, strlen(s->buffer))) < 0)
+    if ((ret = ffurl_write(s->hd, s->buffer, strlen((char *) s->buffer))) < 0)
         goto fail;
 
     s->buf_ptr    = s->buffer;
