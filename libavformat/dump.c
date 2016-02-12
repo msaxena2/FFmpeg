@@ -398,7 +398,7 @@ static void dump_stream_format(AVFormatContext *ic, int i,
     int flags = (is_output ? ic->oformat->flags : ic->iformat->flags);
     AVStream *st = ic->streams[i];
     AVDictionaryEntry *lang = av_dict_get(st->metadata, "language", NULL, 0);
-    char *separator = ic->dump_separator;
+    char *separator = (char *) ic->dump_separator;
     char **codec_separator = av_opt_ptr(st->codec->av_class, st->codec, "dump_separator");
     int use_format_separator = !*codec_separator;
 

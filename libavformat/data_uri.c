@@ -75,7 +75,7 @@ static av_cold int data_open(URLContext *h, const char *uri, int flags)
 
         if (out_size > INT_MAX || !(ddata = av_malloc(out_size)))
             return AVERROR(ENOMEM);
-        if ((ret = av_base64_decode(ddata, data, out_size)) < 0) {
+        if ((ret = av_base64_decode((uint8_t *) ddata, data, out_size)) < 0) {
             av_free(ddata);
             av_log(h, AV_LOG_ERROR, "Invalid base64 in URI\n");
             return ret;
@@ -83,7 +83,7 @@ static av_cold int data_open(URLContext *h, const char *uri, int flags)
         dc->data = dc->tofree = ddata;
         dc->size = ret;
     } else {
-        dc->data = data;
+        dc->data = (uint8_t *) data;
         dc->size = in_size;
     }
     return 0;

@@ -76,7 +76,7 @@ static int dss_read_metadata_date(AVFormatContext *s, unsigned int offset,
 
     avio_seek(pb, offset, SEEK_SET);
 
-    ret = avio_read(s->pb, string, DSS_TIME_SIZE);
+    ret = avio_read(s->pb, (unsigned char *) string, DSS_TIME_SIZE);
     if (ret < DSS_TIME_SIZE)
         return ret < 0 ? ret : AVERROR_EOF;
 
@@ -102,7 +102,7 @@ static int dss_read_metadata_string(AVFormatContext *s, unsigned int offset,
     if (!value)
         return AVERROR(ENOMEM);
 
-    ret = avio_read(s->pb, value, size);
+    ret = avio_read(s->pb, (unsigned char *) value, size);
     if (ret < size) {
         ret = ret < 0 ? ret : AVERROR_EOF;
         goto exit;
@@ -240,7 +240,7 @@ static int dss_sp_read_packet(AVFormatContext *s, AVPacket *pkt)
     if (ctx->counter < 0) {
         int size2 = ctx->counter + read_size;
 
-        ret = avio_read(s->pb, ctx->dss_sp_buf + offset + buff_offset,
+        ret = avio_read(s->pb, (unsigned char *) ctx->dss_sp_buf + offset + buff_offset,
                         size2 - offset);
         if (ret < size2 - offset)
             goto error_eof;
@@ -249,12 +249,12 @@ static int dss_sp_read_packet(AVFormatContext *s, AVPacket *pkt)
         offset = size2;
     }
 
-    ret = avio_read(s->pb, ctx->dss_sp_buf + offset + buff_offset,
+    ret = avio_read(s->pb, (unsigned char *) ctx->dss_sp_buf + offset + buff_offset,
                     read_size - offset);
     if (ret < read_size - offset)
         goto error_eof;
 
-    dss_sp_byte_swap(ctx, pkt->data, ctx->dss_sp_buf);
+    dss_sp_byte_swap(ctx, (uint8_t *) pkt->data, (uint8_t *) ctx->dss_sp_buf);
 
     if (ctx->dss_sp_swap_byte < 0) {
         ret = AVERROR(EAGAIN);

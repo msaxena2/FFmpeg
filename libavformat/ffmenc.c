@@ -139,7 +139,7 @@ static int ffm_write_header_codec_ctx(AVIOContext *pb, AVCodecContext *ctx, unsi
     if ((ret = av_opt_serialize(ctx, ENC | type, SKIP_DEFAULTS, &buf, '=', ',')) < 0)
         goto fail;
     if (buf && strlen(buf)) {
-        avio_write(tmp, buf, strlen(buf));
+        avio_write(tmp, (unsigned char *) buf, strlen(buf));
         av_freep(&buf);
         need_coma = 1;
     }
@@ -148,7 +148,7 @@ static int ffm_write_header_codec_ctx(AVIOContext *pb, AVCodecContext *ctx, unsi
     if (buf && strlen(buf)) {
         if (need_coma)
             avio_w8(tmp, ',');
-        avio_write(tmp, buf, strlen(buf));
+        avio_write(tmp, (unsigned char *) buf, strlen(buf));
     }
     av_freep(&buf);
     avio_w8(tmp, 0);

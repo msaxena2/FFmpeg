@@ -744,11 +744,11 @@ static int add_segment(OutputStream *os, const char *file,
 static void write_styp(AVIOContext *pb)
 {
     avio_wb32(pb, 24);
-    ffio_wfourcc(pb, "styp");
-    ffio_wfourcc(pb, "msdh");
+    ffio_wfourcc(pb, (uint8_t *) "styp");
+    ffio_wfourcc(pb, (uint8_t *) "msdh");
     avio_wb32(pb, 0); /* minor */
-    ffio_wfourcc(pb, "msdh");
-    ffio_wfourcc(pb, "msix");
+    ffio_wfourcc(pb, (uint8_t *) "msdh");
+    ffio_wfourcc(pb, (uint8_t *) "msix");
 }
 
 static void find_index_range(AVFormatContext *s, const char *full_path,
