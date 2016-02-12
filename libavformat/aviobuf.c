@@ -350,7 +350,7 @@ int avio_put_str(AVIOContext *s, const char *str)
 
 static inline int put_str16(AVIOContext *s, const char *str, const int be)
 {
-    const uint8_t *q = str;
+    const uint8_t *q = (uint8_t *) str;
     int ret = 0;
     int err = 0;
 
@@ -994,7 +994,7 @@ int avio_printf(AVIOContext *s, const char *fmt, ...)
     va_start(ap, fmt);
     ret = vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
-    avio_write(s, buf, strlen(buf));
+    avio_write(s, (unsigned char *) buf, strlen(buf));
     return ret;
 }
 
@@ -1030,7 +1030,7 @@ int avio_read_to_bprint(AVIOContext *h, AVBPrint *pb, size_t max_size)
     int ret;
     char buf[1024];
     while (max_size) {
-        ret = avio_read(h, buf, FFMIN(max_size, sizeof(buf)));
+        ret = avio_read(h, (unsigned char *) buf, FFMIN(max_size, sizeof(buf)));
         if (ret == AVERROR_EOF)
             return 0;
         if (ret <= 0)
@@ -1179,7 +1179,7 @@ int avio_close_dyn_buf(AVIOContext *s, uint8_t **pbuffer)
 
     /* don't attempt to pad fixed-size packet buffers */
     if (!s->max_packet_size) {
-        avio_write(s, padbuf, sizeof(padbuf));
+        avio_write(s, (unsigned char *) padbuf, sizeof(padbuf));
         padding = AV_INPUT_BUFFER_PADDING_SIZE;
     }
 

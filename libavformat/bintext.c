@@ -93,7 +93,7 @@ static int next_tag_read(AVFormatContext *avctx, uint64_t *fsize)
     uint64_t start_pos = avio_size(pb) - 256;
 
     avio_seek(pb, start_pos, SEEK_SET);
-    if (avio_read(pb, buf, sizeof(next_magic)) != sizeof(next_magic))
+    if (avio_read(pb, (unsigned char *) buf, sizeof(next_magic)) != sizeof(next_magic))
         return -1;
     if (memcmp(buf, next_magic, sizeof(next_magic)))
         return -1;
@@ -106,7 +106,7 @@ static int next_tag_read(AVFormatContext *avctx, uint64_t *fsize)
     len = avio_r8(pb); \
     if (len < 1 || len > size) \
         return -1; \
-    if (avio_read(pb, buf, size) == size && *buf) { \
+    if (avio_read(pb, (unsigned char *) buf, size) == size && *buf) { \
         buf[len] = 0; \
         av_dict_set(&avctx->metadata, name, buf, 0); \
     }
