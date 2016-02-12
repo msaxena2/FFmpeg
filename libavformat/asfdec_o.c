@@ -284,9 +284,9 @@ static int asf_read_value(AVFormatContext *s, const uint8_t *name,
         return AVERROR(ENOMEM);
     if (type == ASF_UNICODE) {
         // get_asf_string reads UTF-16 and converts it to UTF-8 which needs longer buffer
-        if ((ret = get_asf_string(pb, val_len, value, buflen)) < 0)
+        if ((ret = get_asf_string(pb, val_len, (char *) value, buflen)) < 0)
             goto failed;
-        if (av_dict_set(met, name, value, 0) < 0)
+        if (av_dict_set(met, (char *) name, (char *) value, 0) < 0)
             av_log(s, AV_LOG_WARNING, "av_dict_set failed.\n");
     } else {
         char buf[256];
@@ -301,7 +301,7 @@ static int asf_read_value(AVFormatContext *s, const uint8_t *name,
         else
             value[2 * val_len - 1] = '\0';
         snprintf(buf, sizeof(buf), "%s", value);
-        if (av_dict_set(met, name, buf, 0) < 0)
+        if (av_dict_set(met, (char *) name, buf, 0) < 0)
             av_log(s, AV_LOG_WARNING, "av_dict_set failed.\n");
     }
     av_freep(&value);
@@ -348,7 +348,7 @@ static int asf_set_metadata(AVFormatContext *s, const uint8_t *name,
         return ret;
 
     snprintf(buf, sizeof(buf), "%"PRIu64, value);
-    if (av_dict_set(met, name, buf, 0) < 0)
+    if (av_dict_set(met, (char *) name, buf, 0) < 0)
         av_log(s, AV_LOG_WARNING, "av_dict_set failed.\n");
 
     return 0;
@@ -412,7 +412,7 @@ static int asf_read_picture(AVFormatContext *s, int len)
     desc     = av_malloc(desc_len);
     if (!desc)
         return AVERROR(ENOMEM);
-    len -= avio_get_str16le(s->pb, len - picsize, desc, desc_len);
+    len -= avio_get_str16le(s->pb, len - picsize, (char *) desc, desc_len);
 
     ret = av_get_packet(s->pb, &pkt, picsize);
     if (ret < 0)
@@ -440,7 +440,7 @@ static int asf_read_picture(AVFormatContext *s, int len)
     asf->nb_streams++;
 
     if (*desc) {
-        if (av_dict_set(&st->metadata, "title", desc, AV_DICT_DONT_STRDUP_VAL) < 0)
+        if (av_dict_set(&st->metadata, "title", (char *) desc, AV_DICT_DONT_STRDUP_VAL) < 0)
             av_log(s, AV_LOG_WARNING, "av_dict_set failed.\n");
     } else
         av_freep(&desc);
@@ -478,9 +478,9 @@ static int process_metadata(AVFormatContext *s, const uint8_t *name, uint16_t na
             asf_read_value(s, name, val_len, type, met);
             break;
         case ASF_BYTE_ARRAY:
-            if (!strcmp(name, "WM/Picture")) // handle cover art
+            if (!strcmp((char *) name, "WM/Picture")) // handle cover art
                 asf_read_picture(s, val_len);
-            else if (!strcmp(name, "ID3")) // handle ID3 tag
+            else if (!strcmp((char *) name, "ID3")) // handle ID3 tag
                 get_id3_tag(s, val_len);
             else
                 asf_read_value(s, name, val_len, type, met);
@@ -516,7 +516,7 @@ static int asf_read_ext_content(AVFormatContext *s, const GUIDParseTable *g)
         name = av_malloc(name_len);
         if (!name)
             return AVERROR(ENOMEM);
-        avio_get_str16le(pb, name_len, name,
+        avio_get_str16le(pb, name_len, (char *) name,
                          name_len);
         type    = avio_rl16(pb);
         // BOOL values are 16 bits long in the Metadata Object
@@ -563,7 +563,7 @@ static int asf_store_aspect_ratio(AVFormatContext *s, uint8_t st_num, uint8_t *n
         return ret;
 
     if (st_num < ASF_MAX_STREAMS) {
-        if (!strcmp(name, "AspectRatioX"))
+        if (!strcmp((char *) name, "AspectRatioX"))
             asf->asf_sd[st_num].aspect_ratio.num = value;
         else
             asf->asf_sd[st_num].aspect_ratio.den = value;
@@ -594,9 +594,9 @@ static int asf_read_metadata_obj(AVFormatContext *s, const GUIDParseTable *g)
         name     = av_malloc(buflen);
         if (!name)
             return AVERROR(ENOMEM);
-        avio_get_str16le(pb, name_len, name,
+        avio_get_str16le(pb, name_len, (char *) name,
                          buflen);
-        if (!strcmp(name, "AspectRatioX") || !strcmp(name, "AspectRatioY")) {
+        if (!strcmp((char *) name, "AspectRatioX") || !strcmp((char *) name, "AspectRatioY")) {
             ret = asf_store_aspect_ratio(s, st_num, name, type);
             if (ret < 0) {
                 av_freep(&name);
