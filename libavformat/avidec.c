@@ -142,10 +142,10 @@ static int get_riff(AVFormatContext *s, AVIOContext *pb)
     int i;
 
     /* check RIFF header */
-    avio_read(pb, header, 4);
+    avio_read(pb, (unsigned char *) header, 4);
     avi->riff_end  = avio_rl32(pb); /* RIFF chunk size */
     avi->riff_end += avio_tell(pb); /* RIFF chunk end */
-    avio_read(pb, header + 4, 4);
+    avio_read(pb, (unsigned char *) header + 4, 4);
 
     for (i = 0; avi_headers[i][0]; i++)
         if (!memcmp(header, avi_headers[i], 8))
@@ -310,7 +310,7 @@ static int avi_read_tag(AVFormatContext *s, AVStream *st, uint32_t tag,
     value = av_malloc(size + 1);
     if (!value)
         return AVERROR(ENOMEM);
-    if (avio_read(pb, value, size) != size)
+    if (avio_read(pb, (unsigned char *) value, size) != size)
         return AVERROR_INVALIDDATA;
     value[size] = 0;
 
@@ -357,7 +357,7 @@ static void avi_read_nikon(AVFormatContext *s, uint64_t end)
                 const char *name = NULL;
                 char buffer[64]  = { 0 };
                 size = FFMIN(size, tag_end - avio_tell(s->pb));
-                size -= avio_read(s->pb, buffer,
+                size -= avio_read(s->pb, (unsigned char *) buffer,
                                   FFMIN(size, sizeof(buffer) - 1));
                 switch (tag) {
                 case 0x03:
@@ -536,7 +536,7 @@ static int avi_read_header(AVFormatContext *s)
             size += (size & 1);
             size -= avio_read(pb, date, FFMIN(size, sizeof(date) - 1));
             avio_skip(pb, size);
-            avi_metadata_creation_time(&s->metadata, date);
+            avi_metadata_creation_time(&s->metadata, (char *) date);
             break;
         }
         case MKTAG('d', 'm', 'l', 'h'):
@@ -1049,7 +1049,7 @@ static int read_gab2_sub(AVFormatContext *s, AVStream *st, AVPacket *pkt)
 {
     if (pkt->size >= 7 &&
         pkt->size < INT_MAX - AVPROBE_PADDING_SIZE &&
-        !strcmp(pkt->data, "GAB2") && AV_RL16(pkt->data + 5) == 2) {
+        !strcmp((char *) pkt->data, "GAB2") && AV_RL16(pkt->data + 5) == 2) {
         uint8_t desc[256];
         int score      = AVPROBE_SCORE_EXTENSION, ret;
         AVIStream *ast = st->priv_data;
@@ -1065,10 +1065,10 @@ static int read_gab2_sub(AVFormatContext *s, AVStream *st, AVPacket *pkt)
         if (desc_len > pb->buf_end - pb->buf_ptr)
             goto error;
 
-        ret = avio_get_str16le(pb, desc_len, desc, sizeof(desc));
+        ret = avio_get_str16le(pb, desc_len, (char *) desc, sizeof(desc));
         avio_skip(pb, desc_len - ret);
         if (*desc)
-            av_dict_set(&st->metadata, "title", desc, 0);
+            av_dict_set(&st->metadata, "title", (char *) desc, 0);
 
         avio_rl16(pb);   /* flags? */
         avio_rl32(pb);   /* data size */

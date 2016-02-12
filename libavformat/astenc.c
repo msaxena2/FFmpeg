@@ -78,7 +78,7 @@ static int ast_write_header(AVFormatContext *s)
     CHECK_LOOP(start)
     CHECK_LOOP(end)
 
-    ffio_wfourcc(pb, "STRM");
+    ffio_wfourcc(pb, (uint8_t *) "STRM");
 
     ast->size = avio_tell(pb);
     avio_wb32(pb, 0); /* File size minus header */
@@ -116,7 +116,7 @@ static int ast_write_packet(AVFormatContext *s, AVPacket *pkt)
     if (s->streams[0]->nb_frames == 0)
         ast->fbs = size;
 
-    ffio_wfourcc(pb, "BLCK");
+    ffio_wfourcc(pb, (uint8_t *) "BLCK");
     avio_wb32(pb, size); /* Block size */
 
     /* padding */

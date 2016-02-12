@@ -181,7 +181,7 @@ static int au_write_header(AVFormatContext *s)
         return AVERROR(EINVAL);
     }
 
-    ffio_wfourcc(pb, ".snd");                   /* magic number */
+    ffio_wfourcc(pb, (uint8_t *) ".snd");                   /* magic number */
     avio_wb32(pb, AU_HEADER_SIZE);              /* header size */
     avio_wb32(pb, AU_UNKNOWN_SIZE);             /* data size */
     avio_wb32(pb, enc->codec_tag);              /* codec ID */

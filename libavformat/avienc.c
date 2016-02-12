@@ -103,9 +103,9 @@ static int64_t avi_start_new_riff(AVFormatContext *s, AVIOContext *pb,
     }
 
     avi->riff_start = ff_start_tag(pb, "RIFF");
-    ffio_wfourcc(pb, riff_tag);
+    ffio_wfourcc(pb, (uint8_t *) riff_tag);
     loff = ff_start_tag(pb, "LIST");
-    ffio_wfourcc(pb, list_tag);
+    ffio_wfourcc(pb, (uint8_t *) list_tag);
     return loff;
 }
 
@@ -179,7 +179,7 @@ static void write_odml_master(AVFormatContext *s, int stream_index)
     avio_w8(pb, 0);     /* bIndexSubType (0 == frame index) */
     avio_w8(pb, 0);     /* bIndexType (0 == AVI_INDEX_OF_INDEXES) */
     avio_wl32(pb, 0);   /* nEntriesInUse (will fill out later on) */
-    ffio_wfourcc(pb, avi_stream2fourcc(tag, stream_index, enc->codec_type));
+    ffio_wfourcc(pb, (uint8_t *) avi_stream2fourcc((char *) tag, stream_index, enc->codec_type));
                         /* dwChunkId */
     avio_wl64(pb, 0);   /* dwReserved[3] */
     avio_wl32(pb, 0);   /* Must be 0.    */

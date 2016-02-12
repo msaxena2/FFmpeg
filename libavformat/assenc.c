@@ -58,12 +58,12 @@ static int write_header(AVFormatContext *s)
     avpriv_set_pts_info(s->streams[0], 64, 1, 100);
     if (avctx->extradata_size > 0) {
         size_t header_size = avctx->extradata_size;
-        uint8_t *trailer = strstr(avctx->extradata, "\n[Events]");
+        uint8_t *trailer = (uint8_t *) strstr((char *) avctx->extradata, "\n[Events]");
 
         if (trailer)
-            trailer = strstr(trailer, "Format:");
+            trailer = (uint8_t *) strstr((char *) trailer, "Format:");
         if (trailer)
-            trailer = strstr(trailer, "\n");
+            trailer = (uint8_t *) strstr((char *) trailer, "\n");
 
         if (trailer++) {
             header_size = (trailer - avctx->extradata);
@@ -74,9 +74,9 @@ static int write_header(AVFormatContext *s)
 
         avio_write(s->pb, avctx->extradata, header_size);
         if (avctx->extradata[header_size - 1] != '\n')
-            avio_write(s->pb, "\r\n", 2);
-        ass->ssa_mode = !strstr(avctx->extradata, "\n[V4+ Styles]");
-        if (!strstr(avctx->extradata, "\n[Events]"))
+            avio_write(s->pb, (unsigned char *) "\r\n", 2);
+        ass->ssa_mode = !strstr((char *) avctx->extradata, "\n[V4+ Styles]");
+        if (!strstr((char *) avctx->extradata, "\n[Events]"))
             avio_printf(s->pb, "[Events]\r\nFormat: %s, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n",
                         ass->ssa_mode ? "Marked" : "Layer");
     }
@@ -161,7 +161,7 @@ static int write_packet(AVFormatContext *s, AVPacket *pkt)
 
     if (ass->write_ts) {
         long int layer;
-        char *p = pkt->data;
+        char *p = (char *) pkt->data;
         int64_t start = pkt->pts;
         int64_t end   = start + pkt->duration;
         int hh1, mm1, ss1, ms1;

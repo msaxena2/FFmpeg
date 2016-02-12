@@ -65,7 +65,7 @@ static int read_dialogue(ASSContext *ass, AVBPrint *dst, const uint8_t *p,
     int hh1, mm1, ss1, ms1;
     int hh2, mm2, ss2, ms2;
 
-    if (sscanf(p, "Dialogue: %*[^,],%d:%d:%d%*c%d,%d:%d:%d%*c%d,%n",
+    if (sscanf((char *) p, "Dialogue: %*[^,],%d:%d:%d%*c%d,%d:%d:%d%*c%d,%n",
                &hh1, &mm1, &ss1, &ms1,
                &hh2, &mm2, &ss2, &ms2, &pos) >= 8 && pos > 0) {
 
@@ -73,7 +73,7 @@ static int read_dialogue(ASSContext *ass, AVBPrint *dst, const uint8_t *p,
          * number (which would be the Layer) or the form "Marked=N" (which is
          * the old SSA field, now replaced by Layer, and will lead to Layer
          * being 0 here). */
-        const int layer = atoi(p + 10);
+        const int layer = atoi((char *) (p + 10));
 
         end    = (hh2*3600LL + mm2*60LL + ss2) * 100LL + ms2;
         *start = (hh1*3600LL + mm1*60LL + ss1) * 100LL + ms1;
@@ -139,11 +139,11 @@ static int ass_read_header(AVFormatContext *s)
         if (!line.str[0]) // EOF
             break;
 
-        if (read_dialogue(ass, &rline, line.str, &ts_start, &duration) < 0) {
+        if (read_dialogue(ass, &rline, (uint8_t *) line.str, &ts_start, &duration) < 0) {
             av_bprintf(&header, "%s", line.str);
             continue;
         }
-        sub = ff_subtitles_queue_insert(&ass->q, rline.str, rline.len, 0);
+        sub = ff_subtitles_queue_insert(&ass->q, (uint8_t *) rline.str, rline.len, 0);
         if (!sub) {
             res = AVERROR(ENOMEM);
             goto end;
