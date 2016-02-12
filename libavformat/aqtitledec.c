@@ -40,7 +40,7 @@ typedef struct {
 static int aqt_probe(AVProbeData *p)
 {
     int frame;
-    const char *ptr = p->buf;
+    const char *ptr = (char *) p->buf;
 
     if (sscanf(ptr, "-->> %d", &frame) == 1)
         return AVPROBE_SCORE_EXTENSION;
@@ -79,11 +79,11 @@ static int aqt_read_header(AVFormatContext *s)
             }
         } else if (*line) {
             if (!new_event) {
-                sub = ff_subtitles_queue_insert(&aqt->q, "\n", 1, 1);
+                sub = ff_subtitles_queue_insert(&aqt->q, (uint8_t *) "\n", 1, 1);
                 if (!sub)
                     return AVERROR(ENOMEM);
             }
-            sub = ff_subtitles_queue_insert(&aqt->q, line, strlen(line), !new_event);
+            sub = ff_subtitles_queue_insert(&aqt->q, (uint8_t *) line, strlen(line), !new_event);
             if (!sub)
                 return AVERROR(ENOMEM);
             if (new_event) {

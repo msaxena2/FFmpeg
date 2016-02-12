@@ -269,7 +269,7 @@ static int asf_read_picture(AVFormatContext *s, int len)
     desc     = av_malloc(desc_len);
     if (!desc)
         return AVERROR(ENOMEM);
-    len -= avio_get_str16le(s->pb, len - picsize, desc, desc_len);
+    len -= avio_get_str16le(s->pb, len - picsize, (char *) desc, desc_len);
 
     ret = av_get_packet(s->pb, &pkt, picsize);
     if (ret < 0)
@@ -288,7 +288,7 @@ static int asf_read_picture(AVFormatContext *s, int len)
     st->attached_pic.flags       |= AV_PKT_FLAG_KEY;
 
     if (*desc)
-        av_dict_set(&st->metadata, "title", desc, AV_DICT_DONT_STRDUP_VAL);
+        av_dict_set(&st->metadata, "title", (char *) desc, AV_DICT_DONT_STRDUP_VAL);
     else
         av_freep(&desc);
 
@@ -334,7 +334,7 @@ static void get_tag(AVFormatContext *s, const char *key, int type, int len, int 
         avio_get_str16le(s->pb, len, value, 2 * len + 1);
         break;
     case -1: // ASCI
-        avio_read(s->pb, value, len);
+        avio_read(s->pb, (unsigned char *) value, len);
         value[len]=0;
         break;
     case ASF_BYTE_ARRAY:
@@ -715,21 +715,21 @@ static int asf_read_metadata(AVFormatContext *s, int64_t size)
         if (!name)
             return AVERROR(ENOMEM);
 
-        if ((ret = avio_get_str16le(pb, name_len_utf16, name, name_len_utf8)) < name_len_utf16)
+        if ((ret = avio_get_str16le(pb, name_len_utf16, (char *) name, name_len_utf8)) < name_len_utf16)
             avio_skip(pb, name_len_utf16 - ret);
         av_log(s, AV_LOG_TRACE, "%d stream %d name_len %2d type %d len %4d <%s>\n",
                 i, stream_num, name_len_utf16, value_type, value_len, name);
 
-        if (!strcmp(name, "AspectRatioX")){
+        if (!strcmp((char *) name, "AspectRatioX")){
             int aspect_x = get_value(s->pb, value_type, 16);
             if(stream_num < 128)
                 asf->dar[stream_num].num = aspect_x;
-        } else if(!strcmp(name, "AspectRatioY")){
+        } else if(!strcmp((char *) name, "AspectRatioY")){
             int aspect_y = get_value(s->pb, value_type, 16);
             if(stream_num < 128)
                 asf->dar[stream_num].den = aspect_y;
         } else {
-            get_tag(s, name, value_type, value_len, 16);
+            get_tag(s, (char *) name, value_type, value_len, 16);
         }
         av_freep(&name);
     }
