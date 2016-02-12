@@ -27,7 +27,7 @@
 
 static int apc_probe(AVProbeData *p)
 {
-    if (!strncmp(p->buf, "CRYO_APC", 8))
+    if (!strncmp((char *) p->buf, "CRYO_APC", 8))
         return AVPROBE_SCORE_MAX;
 
     return 0;

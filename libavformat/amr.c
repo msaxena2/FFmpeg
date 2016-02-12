@@ -47,9 +47,9 @@ static int amr_write_header(AVFormatContext *s)
     s->priv_data = NULL;
 
     if (enc->codec_id == AV_CODEC_ID_AMR_NB) {
-        avio_write(pb, AMR_header,   sizeof(AMR_header)   - 1); /* magic number */
+        avio_write(pb, (unsigned char *) AMR_header,   sizeof(AMR_header)   - 1); /* magic number */
     } else if (enc->codec_id == AV_CODEC_ID_AMR_WB) {
-        avio_write(pb, AMRWB_header, sizeof(AMRWB_header) - 1); /* magic number */
+        avio_write(pb, (unsigned char *) AMRWB_header, sizeof(AMRWB_header) - 1); /* magic number */
     } else {
         return -1;
     }
