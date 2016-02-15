@@ -210,7 +210,7 @@ Codecs:
   libschroedinger*                      David Conrad
   libspeexdec.c                         Justin Ruggles
   libtheoraenc.c                        David Conrad
-  libutvideo*                           Derek Buitenhuis
+  libutvideo*                           Carl Eugen Hoyos
   libvorbis.c                           David Conrad
   libvpx*                               James Zern
   libx264.c                             Mans Rullgard, Jason Garrett-Glaser
@@ -564,6 +564,7 @@ Windows ICL                             Matthew Oliver
 ADI/Blackfin DSP                        Marc Hoffman
 Sparc                                   Roman Shaposhnik
 x86                                     Michael Niedermayer
+OS/2                                    KO Myung-Hun
 
 
 Releases
