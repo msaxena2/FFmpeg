@@ -205,7 +205,7 @@ static int check_tag(AVIOContext *s, int offset, unsigned int len)
 
     if (len > 4 ||
         avio_seek(s, offset, SEEK_SET) < 0 ||
-        avio_read(s, tag, len) < (int)len)
+        avio_read(s, (unsigned char *)  tag, len) < (int)len)
         return -1;
     else if (!AV_RB32(tag) || is_tag(tag, len))
         return 1;
@@ -333,14 +333,14 @@ static void read_ttag(AVFormatContext *s, AVIOContext *pb, int taglen,
         return;
     }
 
-    if (!(strcmp(key, "TCON") && strcmp(key, "TCO"))                         &&
-        (sscanf(dst, "(%d)", &genre) == 1 || sscanf(dst, "%d", &genre) == 1) &&
+    if (!(strcmp((char *) key, "TCON") && strcmp((char *) key, "TCO"))                         &&
+        (sscanf((char *) dst, "(%d)", &genre) == 1 || sscanf((char *) dst, "%d", &genre) == 1) &&
         genre <= ID3v1_GENRE_MAX) {
         av_freep(&dst);
-        dst = av_strdup(ff_id3v1_genre_str[genre]);
+        dst = (uint8_t *) av_strdup(ff_id3v1_genre_str[genre]);
     } else if (!(strcmp(key, "TXXX") && strcmp(key, "TXX"))) {
         /* dst now contains the key, need to get value */
-        key = dst;
+        key = (char *) dst;
         if (decode_str(s, pb, encoding, &dst, &taglen) < 0) {
             av_log(s, AV_LOG_ERROR, "Error reading frame %s, skipped\n", key);
             av_freep(&key);
@@ -351,7 +351,7 @@ static void read_ttag(AVFormatContext *s, AVIOContext *pb, int taglen,
         av_freep(&dst);
 
     if (dst)
-        av_dict_set(metadata, key, dst, dict_flags);
+        av_dict_set(metadata, (char *) key, (char *) dst, dict_flags);
 }
 
 static void read_uslt(AVFormatContext *s, AVIOContext *pb, int taglen,
@@ -388,7 +388,7 @@ static void read_uslt(AVFormatContext *s, AVIOContext *pb, int taglen,
     if (!key)
         goto error;
 
-    av_dict_set(metadata, key, text, 0);
+    av_dict_set(metadata, (char *) key, (char *) text, 0);
 
     ok = 1;
 error:
@@ -569,7 +569,7 @@ static void read_apic(AVFormatContext *s, AVIOContext *pb, int taglen,
     if (isv34) {
         taglen -= avio_get_str(pb, taglen, mimetype, sizeof(mimetype));
     } else {
-        avio_read(pb, mimetype, 3);
+        avio_read(pb, (unsigned char *) mimetype, 3);
         mimetype[3] = 0;
         taglen    -= 3;
     }

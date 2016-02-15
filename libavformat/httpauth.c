@@ -128,7 +128,7 @@ static void update_md5_strings(struct AVMD5 *md5ctx, ...)
         const char* str = va_arg(vl, const char*);
         if (!str)
             break;
-        av_md5_update(md5ctx, str, strlen(str));
+        av_md5_update(md5ctx, (uint8_t *) str, strlen(str));
     }
     va_end(vl);
 }
@@ -271,7 +271,7 @@ char *ff_http_auth_create_response(HTTPAuthState *state, const char *auth,
 
         snprintf(authstr, len, "Authorization: Basic ");
         ptr = authstr + strlen(authstr);
-        av_base64_encode(ptr, auth_b64_len, decoded_auth, strlen(decoded_auth));
+        av_base64_encode(ptr, auth_b64_len, (uint8_t *) decoded_auth, strlen(decoded_auth));
         av_strlcat(ptr, "\r\n", len - (ptr - authstr));
         av_free(decoded_auth);
     } else if (state->auth_type == HTTP_AUTH_DIGEST) {
